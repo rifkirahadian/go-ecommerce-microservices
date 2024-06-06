@@ -15,6 +15,7 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/register", controllers.Register)
+	router.POST("/login", controllers.Login)
 
 	router.Run("0.0.0.0:8081")
 }
