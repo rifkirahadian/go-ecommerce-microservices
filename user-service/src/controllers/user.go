@@ -62,5 +62,11 @@ func Login(ctx *gin.Context) {
 		panic(err)
 	}
 
-	ctx.IndentedJSON(http.StatusCreated, gin.H{"accessToken": token})
+	ctx.IndentedJSON(http.StatusOK, gin.H{"accessToken": token})
+}
+
+func UserAuth(ctx *gin.Context) {
+	user, _ := ctx.Get("user")
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"data": user})
 }
