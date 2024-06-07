@@ -20,6 +20,7 @@ func main() {
 	router.POST("/stock", controllers.CreateProductStock)
 	router.GET("/stock", controllers.ListStock)
 	router.POST("/warehouse", controllers.CreateWarehouse)
+	router.GET("/warehouse", controllers.ListWarehouse)
 
 	router.Run("0.0.0.0:8083")
 }

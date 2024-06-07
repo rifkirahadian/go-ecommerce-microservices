@@ -32,3 +32,11 @@ func CreateWarehouse(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusCreated, warehouse)
 }
+
+func ListWarehouse(ctx *gin.Context) {
+	db := configs.InitDB()
+	var warehouses []models.Warehouse
+	db.Find(&warehouses)
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"data": warehouses})
+}
