@@ -24,7 +24,6 @@ func CreateProduct(ctx *gin.Context) {
 	product := models.Product{
 		Name:        body.Name,
 		Description: body.Description,
-		Stock:       body.Stock,
 		UserId:      user.ID,
 	}
 
