@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"shop/product-service/configs"
+	"shop/product-service/src/clients"
 	"shop/product-service/src/dtos"
 	"shop/product-service/src/models"
 	"shop/product-service/src/utils"
@@ -13,7 +14,9 @@ import (
 func CreateProduct(ctx *gin.Context) {
 	var body dtos.CreateProductDto
 	authUser, _ := ctx.Get("user")
+	bearerToken, _ := ctx.Get("token")
 	user, _ := authUser.(dtos.User)
+	token, _ := bearerToken.(string)
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		utils.ValidationResponse(ctx, err)
@@ -28,6 +31,7 @@ func CreateProduct(ctx *gin.Context) {
 	}
 
 	db.Create(&product)
+	clients.CreateProductStock(product.ID, body.Stock, token)
 
 	ctx.IndentedJSON(http.StatusCreated, product)
 }

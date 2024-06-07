@@ -33,6 +33,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// Attach user information to the context
 		c.Set("user", user)
+		c.Set("token", token)
 		c.Next()
 	}
 }
