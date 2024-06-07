@@ -40,3 +40,24 @@ func ListWarehouse(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusOK, gin.H{"data": warehouses})
 }
+
+func WarehouseStatus(ctx *gin.Context) {
+	var body dtos.UpdateWarehouseStatusDto
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		utils.ValidationResponse(ctx, err)
+		return
+	}
+
+	db := configs.InitDB()
+	var warehouse models.Warehouse
+	warehouseQuery := db.First(&warehouse, body.WarehouseId)
+	if warehouseQuery.RowsAffected == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Warehouse not found"})
+		return
+	}
+	warehouse.IsActive = body.IsActive
+	db.Save(&warehouse)
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"message": "Warehouse status updated"})
+}
