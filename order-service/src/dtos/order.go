@@ -5,6 +5,6 @@ type ProductDto struct {
 	Quantity  int `json:"quantity" binding:"required"`
 }
 
-type CreateProductsDto struct {
+type OrderDto struct {
 	Products []ProductDto `json:"products" binding:"required"`
 }
