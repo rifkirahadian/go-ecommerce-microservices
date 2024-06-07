@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"net/http"
 	"shop/order-service/configs"
 	"shop/order-service/src/dtos"
 	"shop/order-service/src/models"
+	"shop/order-service/src/services"
 	"shop/order-service/src/utils"
 	"sync"
 
@@ -14,6 +16,8 @@ func Order(ctx *gin.Context) {
 	var body dtos.OrderDto
 	authUser, _ := ctx.Get("user")
 	user, _ := authUser.(dtos.User)
+	authToken, _ := ctx.Get("token")
+	token, _ := authToken.(string)
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		utils.ValidationResponse(ctx, err)
@@ -21,17 +25,19 @@ func Order(ctx *gin.Context) {
 	}
 	db := configs.InitDB()
 
-	total := 0
-	for i := 0; i < len(body.Products); i++ {
-		var product
+	total, err := services.CalculateTotalPrice(body, token)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	order := models.Order{
 		Code:   utils.RandStringBytes(10),
-		Total:  0,
+		Total:  total,
 		UserId: user.ID,
 		Status: "Pending",
 	}
+	db.Create(&order)
 
 	var wg sync.WaitGroup
 	errChan := make(chan error, len(body.Products))
@@ -40,14 +46,12 @@ func Order(ctx *gin.Context) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			productItem := models.ProductItem{
-				ProductId:   body.ProductId,
-				Code:        utils.RandStringBytes(6),
-				UserId:      user.ID,
-				WarehouseId: body.WarehouseId,
-				IsAvailable: true,
+			orderDetail := models.OrderDetail{
+				ProductId: body.Products[i].ProductID,
+				Quantity:  body.Products[i].ProductID,
+				OrderId:   order.ID,
 			}
-			if err := db.Create(&productItem).Error; err != nil {
+			if err := db.Create(&orderDetail).Error; err != nil {
 				errChan <- err
 			}
 		}()
@@ -55,4 +59,6 @@ func Order(ctx *gin.Context) {
 
 	wg.Wait()
 	close(errChan)
+
+	ctx.JSON(http.StatusCreated, gin.H{"error": "Order created"})
 }

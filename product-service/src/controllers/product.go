@@ -45,12 +45,12 @@ func GetProduct(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	db := configs.InitDB()
-	var product []models.Product
+	var product models.Product
 	productQuery := db.First(&product, id)
 	if productQuery.RowsAffected == 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Product not found"})
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusCreated, product)
+	ctx.IndentedJSON(http.StatusOK, gin.H{"data": product})
 }
