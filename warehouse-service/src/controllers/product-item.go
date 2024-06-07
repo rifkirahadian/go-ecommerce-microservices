@@ -7,6 +7,7 @@ import (
 	"shop/warehouse-service/src/dtos"
 	"shop/warehouse-service/src/models"
 	"shop/warehouse-service/src/utils"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,14 +23,34 @@ func CreateProductStock(ctx *gin.Context) {
 	}
 	db := configs.InitDB()
 
+	var wg sync.WaitGroup
+	errChan := make(chan error, body.Count)
+
 	for i := 0; i < int(body.Count); i++ {
-		productItem := models.ProductItem{
-			ProductId:   body.ProductId,
-			Code:        utils.RandStringBytes(6),
-			UserId:      user.ID,
-			IsAvailable: true,
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			productItem := models.ProductItem{
+				ProductId:   body.ProductId,
+				Code:        utils.RandStringBytes(6),
+				UserId:      user.ID,
+				IsAvailable: true,
+			}
+			if err := db.Create(&productItem).Error; err != nil {
+				errChan <- err
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	// Check for errors
+	for err := range errChan {
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
 		}
-		db.Create(&productItem)
 	}
 
 	ctx.IndentedJSON(http.StatusCreated, gin.H{"message": fmt.Sprintf("%d products added", body.Count)})
