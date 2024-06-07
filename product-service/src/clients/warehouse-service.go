@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	warehouseServiceUrl = "http://localhost:8081"
+	warehouseServiceUrl = "http://localhost:8083"
 )
 
 func CreateProductStock(productId uint, count uint, token string) {

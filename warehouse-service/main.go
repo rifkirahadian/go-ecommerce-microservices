@@ -17,7 +17,7 @@ func main() {
 
 	router.Use(middlewares.AuthMiddleware())
 	router.POST("/stock", controllers.CreateProductStock)
-	// router.GET("/product", controllers.ListProduct)
+	router.GET("/stock", controllers.ListStock)
 
 	router.Run("0.0.0.0:8083")
 }

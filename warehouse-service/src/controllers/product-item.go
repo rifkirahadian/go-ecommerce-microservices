@@ -27,10 +27,19 @@ func CreateProductStock(ctx *gin.Context) {
 			ProductId:   body.ProductId,
 			Code:        utils.RandStringBytes(6),
 			UserId:      user.ID,
-			IsAvailable: false,
+			IsAvailable: true,
 		}
 		db.Create(&productItem)
 	}
 
 	ctx.IndentedJSON(http.StatusCreated, gin.H{"message": fmt.Sprintf("%d products added", body.Count)})
+}
+
+func ListStock(ctx *gin.Context) {
+	productId := ctx.Query("productId")
+	db := configs.InitDB()
+	var products []models.ProductItem
+	db.Find(&products, "product_id = ?", productId)
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"data": products})
 }
