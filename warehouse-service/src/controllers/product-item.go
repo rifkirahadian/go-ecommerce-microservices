@@ -78,3 +78,24 @@ func ListStock(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusOK, gin.H{"data": products})
 }
+
+func TransferStock(ctx *gin.Context) {
+	var body dtos.TransferStockDto
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		utils.ValidationResponse(ctx, err)
+		return
+	}
+
+	db := configs.InitDB()
+
+	var warehouse models.Warehouse
+	warehouseQuery := db.Find(&warehouse, body.WarehouseId)
+	if warehouseQuery.RowsAffected == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Warehouse not found"})
+		return
+	}
+
+	db.Model(models.ProductItem{}).Where("id in (?)", body.ProductItemId).Updates(models.ProductItem{WarehouseId: body.WarehouseId})
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"message": "Stock transferred"})
+}

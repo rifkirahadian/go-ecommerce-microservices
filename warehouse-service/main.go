@@ -21,6 +21,7 @@ func main() {
 	router.GET("/stock", controllers.ListStock)
 	router.POST("/warehouse", controllers.CreateWarehouse)
 	router.GET("/warehouse", controllers.ListWarehouse)
+	router.POST("/stock-transfer", controllers.TransferStock)
 
 	router.Run("0.0.0.0:8083")
 }
