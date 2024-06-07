@@ -23,6 +23,13 @@ func CreateProductStock(ctx *gin.Context) {
 	}
 	db := configs.InitDB()
 
+	var warehouse models.Warehouse
+	warehouseQuery := db.Find(&warehouse, body.WarehouseId)
+	if warehouseQuery.RowsAffected == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Warehouse not found"})
+		return
+	}
+
 	var wg sync.WaitGroup
 	errChan := make(chan error, body.Count)
 
@@ -59,9 +66,15 @@ func CreateProductStock(ctx *gin.Context) {
 
 func ListStock(ctx *gin.Context) {
 	productId := ctx.Query("productId")
+	warehouseId := ctx.Query("warehouseId")
 	db := configs.InitDB()
 	var products []models.ProductItem
-	db.Find(&products, "product_id = ?", productId)
+	if productId != "" {
+		db.Find(&products, "product_id = ?", productId)
+	}
+	if warehouseId != "" {
+		db.Find(&products, "warehouse_id = ?", warehouseId)
+	}
 
 	ctx.IndentedJSON(http.StatusOK, gin.H{"data": products})
 }
