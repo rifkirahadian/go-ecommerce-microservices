@@ -3,7 +3,11 @@ package services
 import (
 	"shop/order-service/src/clients"
 	"shop/order-service/src/dtos"
+	"shop/order-service/src/models"
+	"shop/order-service/src/utils"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 func CalculateTotalPrice(orderDto dtos.OrderDto, token string) (float64, error) {
@@ -37,4 +41,41 @@ func CalculateTotalPrice(orderDto dtos.OrderDto, token string) (float64, error) 
 	}
 
 	return totalPrice, nil
+}
+
+func CreateOrder(body dtos.OrderDto, user dtos.User, total float64, db *gorm.DB) (models.Order, error) {
+	order := models.Order{
+		Code:   utils.RandStringBytes(10),
+		Total:  total,
+		UserId: user.ID,
+		Status: "Pending",
+	}
+	db.Create(&order)
+
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(body.Products))
+
+	for i := 0; i < int(len(body.Products)); i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			orderDetail := models.OrderDetail{
+				ProductId: body.Products[i].ProductID,
+				Quantity:  body.Products[i].ProductID,
+				OrderId:   order.ID,
+			}
+			if err := db.Create(&orderDetail).Error; err != nil {
+				errChan <- err
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return order, <-errChan
+	}
+
+	return order, nil
 }
