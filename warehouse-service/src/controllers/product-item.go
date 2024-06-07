@@ -34,6 +34,7 @@ func CreateProductStock(ctx *gin.Context) {
 				ProductId:   body.ProductId,
 				Code:        utils.RandStringBytes(6),
 				UserId:      user.ID,
+				WarehouseId: body.WarehouseId,
 				IsAvailable: true,
 			}
 			if err := db.Create(&productItem).Error; err != nil {

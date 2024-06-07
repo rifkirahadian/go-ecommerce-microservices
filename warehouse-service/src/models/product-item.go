@@ -7,6 +7,7 @@ type ProductItem struct {
 	ProductId   uint      `gorm:"column:product_id"`
 	Code        string    `gorm:"column:code"`
 	UserId      uint      `gorm:"column:user_id"`
+	WarehouseId uint      `gorm:"column:warehouse_id"`
 	IsAvailable bool      `gorm:"column:is_available"`
 	CreatedAt   time.Time `json:"created_at" gorm:"column:created_at"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"column:updated_at"`
