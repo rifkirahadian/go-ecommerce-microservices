@@ -15,7 +15,9 @@ func main() {
 
 	router := gin.Default()
 
-	router.POST("/product", middlewares.AuthMiddleware(), controllers.CreateProduct)
+	router.Use(middlewares.AuthMiddleware())
+	router.POST("/product", controllers.CreateProduct)
+	router.GET("/product", controllers.ListProduct)
 
 	router.Run("0.0.0.0:8082")
 }

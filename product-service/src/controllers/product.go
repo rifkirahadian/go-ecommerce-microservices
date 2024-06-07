@@ -32,3 +32,11 @@ func CreateProduct(ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusCreated, product)
 }
+
+func ListProduct(ctx *gin.Context) {
+	db := configs.InitDB()
+	var products []models.Product
+	db.Find(&products)
+
+	ctx.IndentedJSON(http.StatusCreated, products)
+}
