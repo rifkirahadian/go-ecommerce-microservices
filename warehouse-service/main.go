@@ -2,6 +2,7 @@ package main
 
 import (
 	"shop/warehouse-service/configs"
+	"shop/warehouse-service/src/controllers"
 	"shop/warehouse-service/src/middlewares"
 	"shop/warehouse-service/src/models"
 
@@ -15,8 +16,8 @@ func main() {
 	router := gin.Default()
 
 	router.Use(middlewares.AuthMiddleware())
-	// router.POST("/product", controllers.CreateProduct)
+	router.POST("/stock", controllers.CreateProductStock)
 	// router.GET("/product", controllers.ListProduct)
 
-	router.Run("0.0.0.0:8082")
+	router.Run("0.0.0.0:8083")
 }
